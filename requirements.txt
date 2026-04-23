@@ -1,0 +1,38 @@
+# ReflectiChain Project Dependencies
+# Python 3.10+
+
+# Core ML / LLM
+torch>=2.0.0
+transformers>=4.35.0
+peft>=0.6.0
+ accelerate>=0.25.0
+
+# Simulation
+numpy>=1.24.0
+scipy>=1.11.0
+networkx>=3.1
+matplotlib>=3.7.0
+seaborn>=0.12.0
+pillow>=10.0.0
+
+# LLM API (if using vLLM / OpenAI-compatible server)
+openai>=1.0.0
+# vllm>=0.2.0  # Uncomment if using local vLLM server
+
+# Utilities
+tqdm>=4.65.0
+pyyaml>=6.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# Experiment tracking
+tensorboard>=2.14.0
+# wandb>=0.16.0  # Optional: Weights & Biases
+
+# ── Ollama (Local LLM) ──────────────────────────────────────────────────────
+# Install Ollama from https://ollama.com, then pull models:
+#   ollama pull qwen2.5
+#   ollama pull llama3
+#   ollama pull mistral
+# Start the server:
+#   ollama serve  (runs on http://localhost:11434 by default)
