@@ -74,9 +74,6 @@ Together, these components form a **trajectory-level semantic memory** that cond
 
 > 🔮 **Anticipate** → ⚙️ **Execute** → 🔄 **Reflect** → 🧠 **Re-anchor** → 🧭 **Plan**
 
-这部分公式比较多，所以我不建议狂塞 emoji；最好是**大标题有 icon + 小标题按模块加 icon**，公式区域保持学术感。可以直接改成：
-
-```markdown
 ## 🏗️ Framework
 
 ReflectiChain integrates a lightweight **latent world model** with **semantic reflection** to form a closed-loop reasoning framework for long-horizon planning.
@@ -163,20 +160,33 @@ D_t = d(\mathcal{I}, \hat{\mathcal{I}}_t).
 
 Without explicit re-anchoring, local decisions may progressively change the effective interpretation of the task. ReflectiChain is designed to suppress this accumulation through repeated trajectory-level reflection.
 
-## Experimental evaluation
+## 📊 Experimental Evaluation
 
-ReflectiChain is evaluated on the **Sema-Sim benchmark** (*Semantic-Interactive Multi-Agent Supply Chain Simulation*). Sema-Sim models a four-tier supply chain (Supplier, Manufacturer, Distributor, Retailer) with 10 heterogeneous nodes and approximately 30 transportation edges. It injects natural-language hard constraints and non-stationary policy shocks to create conflicts between semantic fidelity and local task success.
+ReflectiChain is evaluated on the **Sema-Sim benchmark** (*Semantic-Interactive Multi-Agent Supply Chain Simulation*). Sema-Sim models a four-tier supply chain — **Supplier, Manufacturer, Distributor, and Retailer** — with 10 heterogeneous nodes and approximately 30 transportation edges.
 
-The paper evaluates 3,000 heuristic trajectories and reports four complementary metrics:
+The benchmark injects **natural-language hard constraints** and **non-stationary policy shocks**, creating conflicts between semantic fidelity and local task success.
 
-- **TS**: Task Success, the strict binary goal indicator.
-- **CCR**: Constraint Compliance Rate, the fraction of steps satisfying all hard constraints.
-- **TI**: Trajectory Instability, where lower values indicate less rationale oscillation and drift.
-- **RCS**: Rationale Consistency Score, the semantic alignment between step-wise rationales and the initial constraints.
+### 🧪 Evaluation Setup
 
-The evaluation considers both task execution and semantic consistency. ReflectiChain achieves the highest RCS for every reported backbone, with relative gains of **33.0%, 30.6%, 33.4%, and 30.6% over ReflAct** on Qwen2.5-7B, InternLM2.5-7B-Chat, Llama-3.1-8B-Instruct, and GPT-4o-mini, respectively.
+The paper evaluates **3,000 heuristic trajectories** using four complementary metrics:
 
-### Main results
+- ✅ **TS — Task Success**: strict binary goal indicator.
+- 🛡️ **CCR — Constraint Compliance Rate**: fraction of steps satisfying all hard constraints.
+- 📉 **TI — Trajectory Instability**: lower values indicate less rationale oscillation and drift.
+- 🧠 **RCS — Rationale Consistency Score**: semantic alignment between step-wise rationales and the initial constraints.
+
+Together, these metrics evaluate both **task execution** and **semantic consistency**.
+
+### 🚀 Key Result
+
+ReflectiChain achieves the highest **RCS** for every reported backbone, with relative gains of:
+
+- **+33.0%** over ReflAct on Qwen2.5-7B
+- **+30.6%** on InternLM2.5-7B-Chat
+- **+33.4%** on Llama-3.1-8B-Instruct
+- **+30.6%** on GPT-4o-mini
+
+### 🏆 Main Results
 
 Values are transcribed from Table II of the author-version manuscript. TS is reported as the paper's task-success score; CCR and RCS are percentages; lower TI is better.
 
@@ -200,44 +210,73 @@ Values are transcribed from Table II of the author-version manuscript. TS is rep
 | GPT-4o-mini | ReflAct | 9.42 | 84.60 | 4.12 | 71.30 |
 | **GPT-4o-mini** | **ReflectiChain (Ours)** | **2.45** | **89.40** | **3.10** | **93.12 (+30.6% vs ReflAct)** |
 
-### Hard-constraint categories
+### 🚧 Hard-Constraint Categories
 
 | Category | Example constraint | Drift pressure |
 | :--- | :--- | :--- |
-| Temporal logic | Do not access target C before approval | Delay recovery |
-| Data sovereignty | Keep restricted data within certified nodes | Route disruption |
-| Certification | Use only certified transportation edges | Capacity bottleneck |
-| Safety priority | Never bypass blocked safety gates | Local success conflict |
-| Resource budget | Keep emergency actions below budget | Throughput loss |
+| ⏱️ Temporal logic | Do not access target C before approval | Delay recovery |
+| 🌍 Data sovereignty | Keep restricted data within certified nodes | Route disruption |
+| ✅ Certification | Use only certified transportation edges | Capacity bottleneck |
+| 🛡️ Safety priority | Never bypass blocked safety gates | Local success conflict |
+| 💰 Resource budget | Keep emergency actions below budget | Throughput loss |
 
-### Ablation results
+### 🧩 Ablation Study
 
 | Variant | CEE ↑ | RC (%) ↑ | RCS (%) ↑ | Failure mode |
 | :--- | ---: | ---: | ---: | :--- |
 | **ReflectiChain** | **2.55** | **82.50** | **88.45** | — |
 | w/o WM | 2.39 | 75.10 | 76.30 | Lack of physical priors |
-| w/o Retro | 2.19 | 71.45 | 58.12 | — |
+| w/o Retro | 2.19 | 71.45 | 58.12 | Loss of semantic re-anchoring |
 
-The paper also reports that **ReAct + Rule Verbalization** reaches only **58.2% RCS**, while removing the world model reduces CCR to **75.10%** and removing retrospective reflection reduces RCS to **58.12%**.
+### 🔍 What the Ablations Show
 
-## Key takeaways
+The results highlight the complementary roles of the two core components:
 
-- **Semantic consistency is temporal.** Instruction following must remain grounded throughout the complete interaction trajectory.
-- **Physical reasoning matters.** Language-level reasoning alone may be insufficient when actions interact with an evolving environment.
-- **Reflection reconstructs semantics.** Reflection is used to reconnect the current trajectory with the original instruction, not only to correct the last error.
-- **Reliable agents need closed-loop reasoning.** The workflow moves from static prompt-to-action reasoning toward semantic constraint, physical prediction, action, reflection, and semantic reconstruction.
-- **Physical grounding and retrospective reflection are both necessary.** The ablations show that removing either component materially reduces compliance or rationale consistency.
+- Removing the **world model** reduces CCR to **75.10%**, showing the importance of physical priors.
+- Removing **retrospective reflection** reduces RCS to **58.12%**, showing its role in preserving semantic consistency.
+- **ReAct + Rule Verbalization** reaches only **58.2% RCS**, substantially below the full ReflectiChain framework.
 
-## Publication
+> 🧭 **Physical anticipation improves constraint-aware execution, while retrospective reflection preserves semantic alignment over long horizons.**
+
+## 🎯 Key Takeaways
+
+- 🧭 **Semantic consistency is temporal.**  
+  Instruction following must remain grounded throughout the **entire interaction trajectory**, not only at individual decision steps.
+
+- 🌐 **Physical reasoning matters.**  
+  Language-level reasoning alone may be insufficient when actions interact with an **evolving physical environment**.
+
+- 🔄 **Reflection reconstructs semantics.**  
+  Reflection is used to reconnect the current trajectory with the **original instruction**, rather than merely correcting the latest local error.
+
+- 🔁 **Reliable agents need closed-loop reasoning.**  
+  ReflectiChain moves beyond static prompt-to-action reasoning toward a continuous loop of  
+  **semantic constraints → physical prediction → action → observation → reflection → semantic reconstruction**.
+
+- 🧩 **Physical grounding and retrospective reflection are complementary.**  
+  The ablation results show that removing either component materially reduces **constraint compliance** or **rationale consistency**.
+
+> 🔗 **ReflectiChain treats long-horizon alignment as a trajectory-level process: anticipate physically, act, reflect semantically, and re-anchor continuously.**
+
+## 🔥 News
+
+- **[2026-09-28]** ReflectiChain is available on IEEE Xplore as an **Early Access** article.
+- **[2026-08-18]** The manuscript is accepted by **IEEE Signal Processing Letters**.
+
+## 📄 Publication
 
 **ReflectiChain: Grounding Long-Horizon LLM Planning against Semantic–Execution Drift**
 
-Jia Luo · *IEEE Signal Processing Letters* · 2026 · Early Access
+**Jia Luo** · *IEEE Signal Processing Letters* · **2026** · ⚡ **Early Access**
 
-- [IEEE Xplore](https://ieeexplore.ieee.org/document/11663390)
-- [DOI: 10.1109/LSP.2026.3726840](https://doi.org/10.1109/LSP.2026.3726840)
+- 🔗 [IEEE Xplore](https://ieeexplore.ieee.org/document/11663390)
+- 🆔 [DOI: 10.1109/LSP.2026.3726840](https://doi.org/10.1109/LSP.2026.3726840)
 
-## Citation
+---
+
+## 📚 Citation
+
+If you find ReflectiChain useful in your research, please cite:
 
 ```bibtex
 @article{luo2026reflectichain,
@@ -249,12 +288,32 @@ Jia Luo · *IEEE Signal Processing Letters* · 2026 · Early Access
 }
 ```
 
-## Repository scope
+---
 
-This repository is a **paper project page and research overview**. It presents the motivation, framework illustration, mathematical formulation, experimental summary, and publication information.
+## 📦 Repository Scope
 
-The repository does not currently claim to contain an official implementation, source code, or pretrained models. The experimental details and values shown above are transcribed from the supplied author-version manuscript, which notes that it is accepted for publication and may change before final publication. Please refer to the linked IEEE record for the authoritative publication version.
+This repository serves as a **paper project page and research overview** for ReflectiChain.
 
-## Acknowledgements
+It currently includes:
 
-If you use or discuss the ideas in ReflectiChain, please cite the paper above.
+- 🧭 Motivation and problem formulation
+- 🧠 Core reasoning mechanism
+- 🏗️ Framework and mathematical formulation
+- 📊 Experimental results and ablations
+- 📄 Publication and citation information
+
+> ⚠️ This repository does **not currently claim to provide an official implementation, source code, or pretrained models**.
+
+The experimental details and numerical results presented above are transcribed from the supplied author-version manuscript. As the paper is currently available as **IEEE Early Access**, the final publication version may contain editorial changes.
+
+For the authoritative version, please refer to the linked IEEE record.
+
+---
+
+## 🙏 Acknowledgements
+
+If you use, build upon, or discuss the ideas introduced in **ReflectiChain**, please cite the paper above.
+
+<p align="center">
+  🧠 <b>Think ahead.</b> &nbsp; 🔄 <b>Reflect back.</b> &nbsp; 🧭 <b>Stay grounded.</b>
+</p>
