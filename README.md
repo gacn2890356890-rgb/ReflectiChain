@@ -74,77 +74,115 @@ Together, these components form a **trajectory-level semantic memory** that cond
 
 > 🔮 **Anticipate** → ⚙️ **Execute** → 🔄 **Reflect** → 🧠 **Re-anchor** → 🧭 **Plan**
 
+---
+
 ## 🏗️ Framework
 
 ReflectiChain integrates a lightweight **latent world model** with **semantic reflection** to form a closed-loop reasoning framework for long-horizon planning.
 
 ### 🌐 Latent World Model
 
-The paper's world model uses a fixed, analytic transition over a six-dimensional latent state:
+The world model operates on a six-dimensional latent state:
 
 ```text
 z_t = (inventory, congestion, demand, carbon, stockout, tension)
+
 z_{t+1} = z_t + Δt · f_ω(z_t, a_t)
 ```
 
-The transition coefficients are initialized from environment statistics and held fixed; the model advances only the latent state online. The framework therefore uses a **lightweight physical prior** rather than a separately trained neural simulator.
+The transition coefficients are initialized from environment statistics and remain fixed. During inference, only the latent state is updated online.
+
+This design provides a **lightweight physical prior** without requiring a separately trained neural simulator.
+
+---
 
 ### ⚖️ Physically Grounded Action Selection
 
-Candidate actions combine the language-model prior with physical feasibility:
+Candidate actions are scored using both the language-model prior and the world-model estimate of physical feasibility:
 
-\[
-a_t^* = \arg\max_{a_t}\left[
-\log p_{LLM}(a_t\mid C_{rule})
-+
-\lambda\log p_{WM}(\hat r\mid z_t,a_t)
-\right].
-\]
+```text
+a*_t = argmax_a [
+    log p_LLM(a_t | C_rule)
+    +
+    λ · log p_WM(r̂ | z_t, a_t)
+]
+```
 
-This allows the agent to balance **semantic plausibility** with anticipated **physical consequences**.
+This allows the agent to balance:
+
+- 🧠 **Semantic plausibility**
+- 🌐 **Physical feasibility**
+- 🔮 **Downstream consequences**
+
+---
 
 ### 🔄 Semantic Reflection & Policy Calibration
 
-The reflection signal also supplies a semantic advantage for test-time policy calibration:
+The reflection signal provides a semantic advantage for test-time policy calibration:
 
-\[
-\nabla_\theta J(\theta)
-\approx
-\mathbb{E}\left[
-A_{sem}(s,a)\nabla_\theta\log\pi_\theta(a\mid s)
-\right].
-\]
+```text
+∇θ J(θ) ≈ E[
+    A_sem(s, a) · ∇θ log πθ(a | s)
+]
+```
 
-At a high level, the reasoning loop is:
+At a high level, ReflectiChain follows the loop below:
 
 ```text
 📝 Original Instruction
           ↓
-🌐 Current State → 🔮 Latent Rollout → ⚡ Action → 🌍 Environment
-        ↑                                      ↓
-        └──── 🧭 Semantic Re-anchoring ← 🔄 Reflection ← 👁️ Observation
+🌐 Current State
+          ↓
+🔮 Latent Rollout
+          ↓
+⚡ Action
+          ↓
+🌍 Environment
+          ↓
+👁️ Observation
+          ↓
+🔄 Reflection
+          ↓
+🧭 Semantic Re-anchoring
+          └──────────────→ back to planning
 ```
+
+---
 
 ### 🧠 Trajectory-Level Semantic Memory
 
-Let \(\mathcal{I}\) denote the original instruction, \(s_t\) the current environmental state, \(a_t\) the selected action, and \(\mathcal{M}_t\) the trajectory-level semantic memory.
+Let:
 
-ReflectiChain updates the memory by reflecting on the instruction and the observed transition:
+```text
+I    = original instruction
+s_t  = current environmental state
+a_t  = selected action
+M_t  = trajectory-level semantic memory
+```
 
-\[
-\mathcal{M}_{t+1}
+After each interaction, ReflectiChain reconstructs the semantic memory using the original instruction and the observed transition:
+
+```text
+M_{t+1}
 =
-\operatorname{Reflect}
-(\mathcal{I}, \mathcal{M}_t, s_t, a_t, s_{t+1}).
-\]
+Reflect(
+    I,
+    M_t,
+    s_t,
+    a_t,
+    s_{t+1}
+)
+```
 
-The next action is then selected using both the new state and the reconstructed semantic memory:
+The next action is then selected using both the updated environment state and the reconstructed semantic memory:
 
-\[
-a_{t+1}
-=
-\pi(s_{t+1}, \mathcal{M}_{t+1}).
-\]
+```text
+a_{t+1} = π(s_{t+1}, M_{t+1})
+```
+
+This creates a persistent semantic feedback loop:
+
+> 🔮 **Predict** → ⚡ **Execute** → 👁️ **Observe** → 🔄 **Reflect** → 🧭 **Re-anchor** → ♻️ **Continue**
 
 ### 🔁 Closed-Loop Reasoning
 
