@@ -1,24 +1,33 @@
 <div align="center">
 
-# ReflectiChain
+# 🧠🔗 ReflectiChain
 
-### Grounding Long-Horizon LLM Planning against Semantic–Execution Drift
+### 🧭 Grounding Long-Horizon LLM Planning against Semantic–Execution Drift
 
 **Jia Luo**
 
-[![IEEE Signal Processing Letters](https://img.shields.io/badge/IEEE-Signal%20Processing%20Letters-blue)](https://ieeexplore.ieee.org/document/11663390)
-[![DOI](https://img.shields.io/badge/DOI-10.1109%2FLSP.2026.3726840-blue)](https://doi.org/10.1109/LSP.2026.3726840)
-[![Status](https://img.shields.io/badge/Status-Early%20Access-green)](https://ieeexplore.ieee.org/document/11663390)
+<br>
 
-<p>
-  <a href="https://ieeexplore.ieee.org/document/11663390">Paper</a> ·
-  <a href="https://doi.org/10.1109/LSP.2026.3726840">DOI</a> ·
-  <a href="#citation">Citation</a>
-</p>
+[![IEEE Signal Processing Letters](https://img.shields.io/badge/IEEE-Signal%20Processing%20Letters-00629B?logo=ieee&logoColor=white)](https://ieeexplore.ieee.org/document/11663390)
+[![DOI](https://img.shields.io/badge/DOI-10.1109%2FLSP.2026.3726840-007EC6?logo=doi&logoColor=white)](https://doi.org/10.1109/LSP.2026.3726840)
+[![Early Access](https://img.shields.io/badge/⚡_Early_Access-Published-2EA44F)](https://ieeexplore.ieee.org/document/11663390)
+
+<br><br>
+
+📄 **[Paper](https://ieeexplore.ieee.org/document/11663390)**
+&nbsp;&nbsp;•&nbsp;&nbsp;
+🔗 **[DOI](https://doi.org/10.1109/LSP.2026.3726840)**
+&nbsp;&nbsp;•&nbsp;&nbsp;
+📚 **[Citation](#citation)**
 
 </div>
 
-> **ReflectiChain** addresses semantic–execution drift in long-horizon LLM agents by combining latent physical anticipation with retrospective semantic reflection, helping agents preserve the original instruction throughout extended interactions.
+---
+
+### ✨ What is ReflectiChain?
+
+**ReflectiChain** addresses **semantic–execution drift** in long-horizon LLM agents by combining **latent physical anticipation** with **retrospective semantic reflection**, helping agents preserve the original instruction throughout extended interactions.
+
 
 <p align="center">
   <img src="assets/reflectichain_overview.png" alt="Comparison of reasoning directions in ReAct, ReflAct, and ReflectiChain" width="96%" />
