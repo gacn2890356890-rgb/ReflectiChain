@@ -35,42 +35,53 @@
 
 <p align="center"><em>Reasoning directions in ReAct, ReflAct, and ReflectiChain.</em></p>
 
-## Contents
+## 🗺️ Contents
 
-- [Motivation](#motivation)
-- [Core idea](#core-idea)
-- [Framework](#framework)
-- [Semantic–execution drift](#semanticexecution-drift)
-- [Experimental evaluation](#experimental-evaluation)
-- [Publication](#publication)
-- [Citation](#citation)
-- [Repository scope](#repository-scope)
+- 💡 [Motivation](#motivation)
+- 🧠 [Core Idea](#core-idea)
+- 🏗️ [Framework](#framework)
+- 🧭 [Semantic–Execution Drift](#semanticexecution-drift)
+- 📊 [Experimental Evaluation](#experimental-evaluation)
+- 📄 [Publication](#publication)
+- 📚 [Citation](#citation)
+- 📦 [Repository Scope](#repository-scope)
 
-## Motivation
+## 💡 Motivation
 
-Long-horizon agents must adapt to changing environments while continuing to respect the original instruction. In practice, locally successful actions can gradually alter the agent's effective interpretation of that instruction. This accumulation of semantic reinterpretations may eventually produce a constraint violation.
+Long-horizon agents must adapt to changing environments while continuing to respect the **original instruction**. In practice, locally successful actions can gradually alter the agent's effective interpretation of that instruction. Over extended interactions, these semantic reinterpretations may accumulate and eventually produce a **constraint violation**.
 
 We refer to this failure mode as **semantic–execution drift**.
 
-The central question is:
+### 🎯 Central Question
 
-> How can an LLM agent continuously preserve the semantic boundaries of the original instruction while adapting its actions to a changing physical environment?
+> **How can an LLM agent continuously preserve the semantic boundaries of the original instruction while adapting its actions to a changing physical environment?**
 
-## Core idea
+## 🧠 Core Idea
 
 ReflectiChain treats constrained long-horizon planning as a **trajectory-level reasoning problem**, rather than a sequence of isolated action decisions.
 
-### 1. Latent physical anticipation
+### 🔮 1. Latent Physical Anticipation
 
-Before committing to an action, the agent anticipates possible future physical states through a latent rollout. This encourages reasoning about both the immediate action and its downstream consequences.
+Before committing to an action, the agent anticipates possible future physical states through a **latent rollout**. This encourages reasoning about both the immediate action and its downstream consequences.
 
-### 2. Retrospective semantic reflection
+### 🔄 2. Retrospective Semantic Reflection
 
-After interacting with the environment, the agent retrospectively evaluates the resulting trajectory against the original instruction. The current reasoning is repeatedly re-anchored to the initial semantic constraints.
+After interacting with the environment, the agent retrospectively evaluates the resulting trajectory against the **original instruction**. The current reasoning is repeatedly re-anchored to the initial semantic constraints.
 
-Together, these components form a trajectory-level semantic memory that conditions subsequent planning.
+### 🧩 Trajectory-Level Semantic Memory
 
-## Framework
+Together, these components form a **trajectory-level semantic memory** that conditions subsequent planning:
+
+> 🔮 **Anticipate** → ⚙️ **Execute** → 🔄 **Reflect** → 🧠 **Re-anchor** → 🧭 **Plan**
+
+这部分公式比较多，所以我不建议狂塞 emoji；最好是**大标题有 icon + 小标题按模块加 icon**，公式区域保持学术感。可以直接改成：
+
+```markdown
+## 🏗️ Framework
+
+ReflectiChain integrates a lightweight **latent world model** with **semantic reflection** to form a closed-loop reasoning framework for long-horizon planning.
+
+### 🌐 Latent World Model
 
 The paper's world model uses a fixed, analytic transition over a six-dimensional latent state:
 
@@ -79,43 +90,68 @@ z_t = (inventory, congestion, demand, carbon, stockout, tension)
 z_{t+1} = z_t + Δt · f_ω(z_t, a_t)
 ```
 
-The transition coefficients are initialized from environment statistics and held fixed; the model advances only the latent state online. The framework therefore uses a lightweight physical prior rather than a separately trained neural simulator. Candidate actions combine the language-model prior with physical feasibility:
+The transition coefficients are initialized from environment statistics and held fixed; the model advances only the latent state online. The framework therefore uses a **lightweight physical prior** rather than a separately trained neural simulator.
+
+### ⚖️ Physically Grounded Action Selection
+
+Candidate actions combine the language-model prior with physical feasibility:
 
 \[
-a_t^* = \arg\max_{a_t}\left[\log p_{LLM}(a_t\mid C_{rule}) + \lambda\log p_{WM}(\hat r\mid z_t,a_t)\right].
+a_t^* = \arg\max_{a_t}\left[
+\log p_{LLM}(a_t\mid C_{rule})
++
+\lambda\log p_{WM}(\hat r\mid z_t,a_t)
+\right].
 \]
+
+This allows the agent to balance **semantic plausibility** with anticipated **physical consequences**.
+
+### 🔄 Semantic Reflection & Policy Calibration
 
 The reflection signal also supplies a semantic advantage for test-time policy calibration:
 
 \[
-\nabla_\theta J(\theta) \approx \mathbb{E}\left[A_{sem}(s,a)\nabla_\theta\log\pi_\theta(a\mid s)\right].
+\nabla_\theta J(\theta)
+\approx
+\mathbb{E}\left[
+A_{sem}(s,a)\nabla_\theta\log\pi_\theta(a\mid s)
+\right].
 \]
 
 At a high level, the reasoning loop is:
 
 ```text
-Original instruction
-        ↓
-Current state → Latent rollout → Action → Environment step
+📝 Original Instruction
+          ↓
+🌐 Current State → 🔮 Latent Rollout → ⚡ Action → 🌍 Environment
         ↑                                      ↓
-        └──── Semantic re-anchoring ← Reflection ← Observation
+        └──── 🧭 Semantic Re-anchoring ← 🔄 Reflection ← 👁️ Observation
 ```
 
-Let \(\mathcal{I}\) denote the original instruction, \(s_t\) the current environmental state, \(a_t\) the selected action, and \(\mathcal{M}_t\) the trajectory-level semantic memory. ReflectiChain updates the memory by reflecting on the instruction and the observed transition:
+### 🧠 Trajectory-Level Semantic Memory
+
+Let \(\mathcal{I}\) denote the original instruction, \(s_t\) the current environmental state, \(a_t\) the selected action, and \(\mathcal{M}_t\) the trajectory-level semantic memory.
+
+ReflectiChain updates the memory by reflecting on the instruction and the observed transition:
 
 \[
-\mathcal{M}_{t+1} = \operatorname{Reflect}(\mathcal{I}, \mathcal{M}_t, s_t, a_t, s_{t+1}).
+\mathcal{M}_{t+1}
+=
+\operatorname{Reflect}
+(\mathcal{I}, \mathcal{M}_t, s_t, a_t, s_{t+1}).
 \]
 
 The next action is then selected using both the new state and the reconstructed semantic memory:
 
 \[
-a_{t+1} = \pi(s_{t+1}, \mathcal{M}_{t+1}).
+a_{t+1}
+=
+\pi(s_{t+1}, \mathcal{M}_{t+1}).
 \]
 
-This creates a closed loop:
+### 🔁 Closed-Loop Reasoning
 
-> **Predict → Execute → Observe → Reflect → Re-anchor → Continue**
+> 🔮 **Predict** → ⚡ **Execute** → 👁️ **Observe** → 🔄 **Reflect** → 🧭 **Re-anchor** → ♻️ **Continue**
 
 ## Semantic–execution drift
 
